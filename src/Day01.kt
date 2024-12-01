@@ -1,22 +1,19 @@
-import kotlin.math.absoluteValue
-
-private typealias LocationId = Int
+import kotlin.math.abs
 
 fun main() {
     fun part1(input: List<String>): Int {
-        val (leftLocationIds, rightLocationIds) = mapInputToPairOfLocationsIds(input)
-
-        leftLocationIds.sort()
-        rightLocationIds.sort()
-
-        return leftLocationIds.withIndex().sumOf { (index, leftLocationId) ->
-            val distance = (leftLocationId - rightLocationIds[index]).absoluteValue
-            return@sumOf distance
-        }
+        val (leftLocationIds, rightLocationIds) = mapInputToPairOfLocationIds(input)
+        return leftLocationIds
+            .sorted()
+            .zip(rightLocationIds.sorted())
+            .sumOf { (leftLocationId, rightLocationId) ->
+                val distance = abs(leftLocationId - rightLocationId)
+                return@sumOf distance
+            }
     }
 
     fun part2(input: List<String>): Int {
-        val (leftLocationIds, rightLocationIds) = mapInputToPairOfLocationsIds(input)
+        val (leftLocationIds, rightLocationIds) = mapInputToPairOfLocationIds(input)
         return leftLocationIds.sumOf { leftLocationId ->
             val similarityScore = leftLocationId * rightLocationIds.count { it == leftLocationId }
             return@sumOf similarityScore
@@ -33,13 +30,8 @@ fun main() {
     part2(input).println()
 }
 
-private fun mapInputToPairOfLocationsIds(input: List<String>): Pair<Array<LocationId>, Array<LocationId>> {
-    val leftLocationIds = Array(input.size) { 0 }
-    val rightLocationIds = Array(input.size) { 0 }
-    input.forEachIndexed() { index, line ->
-        val locationIds = line.split("   ")
-        leftLocationIds[index] = locationIds.first().toInt()
-        rightLocationIds[index] = locationIds.last().toInt()
-    }
-    return leftLocationIds to rightLocationIds
-}
+private fun mapInputToPairOfLocationIds(input: List<String>): Pair<List<Int>, List<Int>> = input.map { line ->
+    val leftLocationId = line.substringBefore(' ').toInt()
+    val rightLocationId = line.substringAfterLast(' ').toInt()
+    leftLocationId to rightLocationId
+}.unzip()

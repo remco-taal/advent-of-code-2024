@@ -38,37 +38,59 @@ class Day02 {
     @Benchmark
     fun part1Impl2(): Int {
         var safeReports = 0
-        input.forEach report@ { report ->
-            var isIncreasing = false
-            var isDecreasing = false
+        input.forEach report@{ report ->
             val levels = report.split(' ').map { it.toInt() }
-            for (i in 0 until levels.lastIndex) {
-                val currentLevel = levels[i]
-                val nextLevel = levels[i + 1]
-                val difference = abs(currentLevel - nextLevel)
-                when {
-                    difference < 1 || difference > 3 -> return@report // Invalid difference
-                    currentLevel == nextLevel -> return@report // Not increasing or decreasing
-                    currentLevel < nextLevel -> {
-                        if (isDecreasing) return@report // Increasing but already decreasing
-                        isIncreasing = true
-                    }
-                    else -> {
-                        if (isIncreasing) return@report // Decreasing but already increasing
-                        isDecreasing = true
-                    }
-                }
-                if (i == levels.lastIndex - 1) {
-                    safeReports++ // All checks passed and at last level
-                }
-            }
+            if (isSafeReport(levels)) safeReports++
         }
         return safeReports
     }
 
     @Benchmark
     fun part2(): Int {
-        return input.size
+        var totalSafeReports = 0
+        input.forEach report@{ report ->
+            val levels = report.split(' ').map { it.toInt() }
+            if (isSafeReport(levels)) {
+                totalSafeReports++
+                return@report
+            }
+            for (index in levels.indices) {
+                val isSafeAfterModification = isSafeReport(levels.toMutableList().apply { removeAt(index) })
+                if (isSafeAfterModification) {
+                    totalSafeReports++
+                    return@report
+                }
+            }
+        }
+        return totalSafeReports
+    }
+
+    private fun isSafeReport(levels: List<Int>): Boolean {
+        var isSafe = false
+        var isDecreasing = false
+        var isIncreasing = false
+        for (i in 0 until levels.lastIndex) {
+            val currentLevel = levels[i]
+            val nextLevel = levels[i + 1]
+            val difference = abs(currentLevel - nextLevel)
+            when {
+                difference < 1 || difference > 3 -> return false // Invalid difference
+                currentLevel == nextLevel -> return false // Not increasing or decreasing
+                currentLevel < nextLevel -> {
+                    if (isDecreasing) return false // Increasing but already decreasing
+                    isIncreasing = true
+                }
+
+                else -> {
+                    if (isIncreasing) return false // Decreasing but already increasing
+                    isDecreasing = true
+                }
+            }
+            if (i == levels.lastIndex - 1) {
+                isSafe = true // All checks passed and at last level
+            }
+        }
+        return isSafe
     }
 }
 

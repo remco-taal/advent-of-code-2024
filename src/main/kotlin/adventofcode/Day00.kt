@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)
 @Fork(1)
-@Warmup(iterations = 10)
+@Warmup(iterations = 1)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 class Day00 {
 

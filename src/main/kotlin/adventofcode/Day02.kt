@@ -6,8 +6,8 @@ import kotlin.math.abs
 
 @State(Scope.Benchmark)
 @Fork(1)
-@Warmup(iterations = 1)
-@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 class Day02 {
 
     var input = emptyList<String>()
@@ -36,7 +36,7 @@ class Day02 {
     }
 
     @Benchmark
-    fun part1Improved(): Int {
+    fun part1Impl2(): Int {
         var safeReports = 0
         input.forEach report@ { report ->
             var isIncreasing = false
@@ -80,6 +80,7 @@ fun main() {
 
     day02.setUp()
     day02.part1().println()
+    day02.part1Impl2().println()
 
     day02.input = readInput("Day02_test")
     check(day02.part2() == 4)

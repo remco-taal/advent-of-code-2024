@@ -26,9 +26,44 @@ class Day02 {
             }
             if (!allValidDifference) return@filter false
 
-            return@filter levels.all allIncreasing@{ (currentLevel, nextLevel) -> currentLevel < nextLevel } || levels.all allDecreasing@{ (currentLevel, nextLevel) -> currentLevel > nextLevel }
+            return@filter levels.all allIncreasing@{ (currentLevel, nextLevel) ->
+                currentLevel < nextLevel
+            } || levels.all allDecreasing@{ (currentLevel, nextLevel) ->
+                currentLevel > nextLevel
+            }
         }
         return safeReports.count()
+    }
+
+    @Benchmark
+    fun part1Improved(): Int {
+        var safeReports = 0
+        input.forEach report@ { report ->
+            var isIncreasing = false
+            var isDecreasing = false
+            val levels = report.split(' ').map { it.toInt() }
+            for (i in 0 until levels.lastIndex) {
+                val currentLevel = levels[i]
+                val nextLevel = levels[i + 1]
+                val difference = abs(currentLevel - nextLevel)
+                when {
+                    difference < 1 || difference > 3 -> return@report // Invalid difference
+                    currentLevel == nextLevel -> return@report // Not increasing or decreasing
+                    currentLevel < nextLevel -> {
+                        if (isDecreasing) return@report // Increasing but already decreasing
+                        isIncreasing = true
+                    }
+                    else -> {
+                        if (isIncreasing) return@report // Decreasing but already increasing
+                        isDecreasing = true
+                    }
+                }
+                if (i == levels.lastIndex - 1) {
+                    safeReports++ // All checks passed and at last level
+                }
+            }
+        }
+        return safeReports
     }
 
     @Benchmark

@@ -6,8 +6,8 @@ import kotlin.math.abs
 
 @State(Scope.Benchmark)
 @Fork(1)
-@Warmup(iterations = 1)
-@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 class Day01 {
 
     var input = emptyList<String>()
@@ -38,6 +38,16 @@ class Day01 {
         }
     }
 
+    @Benchmark
+    fun part2Impl2(): Int {
+        val (leftLocationIds, rightLocationIds) = input.toPairOfLocationIds()
+        val countMap = rightLocationIds.groupingBy { it }.eachCount()
+        return leftLocationIds.sumOf { leftLocationId ->
+            val similarityScore = leftLocationId * (countMap[leftLocationId] ?: 0)
+            return@sumOf similarityScore
+        }
+    }
+
     private fun List<String>.toPairOfLocationIds(): Pair<List<Int>, List<Int>> = map { line ->
         val leftLocationId = line.substringBefore(' ').toInt()
         val rightLocationId = line.substringAfterLast(' ').toInt()
@@ -57,4 +67,5 @@ fun main() {
     day01.setUp()
     day01.part1().println()
     day01.part2().println()
+    day01.part2Impl2().println()
 }

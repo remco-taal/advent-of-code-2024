@@ -6,9 +6,16 @@ import kotlin.io.path.Path
 import kotlin.io.path.readText
 
 /**
+ * Reads text from the given input txt file.
+ */
+fun readInputText(name: String, trim: Boolean = true) = Path("src/main/resources/$name.txt")
+    .readText()
+    .apply { if (trim) trim() }
+
+/**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String) = Path("src/main/resources/$name.txt").readText().trim().lines()
+fun readInputLines(name: String, trim: Boolean = true): List<String> = readInputText(name, trim).lines()
 
 /**
  * Converts string to md5 hash.

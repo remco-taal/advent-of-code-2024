@@ -14,7 +14,7 @@ class Day02 {
 
     @Setup
     fun setUp() {
-        input = readInput("Day02")
+        input = readInputLines("Day02")
     }
 
     @Benchmark
@@ -97,14 +97,14 @@ class Day02 {
 fun main() {
     val day02 = Day02()
 
-    day02.input = readInput("Day02_test")
+    day02.input = readInputLines("Day02_test")
     check(day02.part1() == 2)
 
     day02.setUp()
     day02.part1().println()
     day02.part1Impl2().println()
 
-    day02.input = readInput("Day02_test")
+    day02.input = readInputLines("Day02_test")
     check(day02.part2() == 4)
 
     day02.setUp()

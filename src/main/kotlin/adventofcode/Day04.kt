@@ -33,7 +33,7 @@ class Day04 {
                 }
 
                 // Top left
-                if (grid.getTopLeftOrNull(x, y) == MAS) {
+                if (grid.getTopLeftOrNull(x, y, 3) == MAS) {
                     totalXmas++
                 }
 
@@ -43,7 +43,7 @@ class Day04 {
                 }
 
                 // Top right
-                if (grid.getTopRightOrNull(x, y) == MAS) {
+                if (grid.getTopRightOrNull(x, y, 3) == MAS) {
                     totalXmas++
                 }
 
@@ -53,7 +53,7 @@ class Day04 {
                 }
 
                 // Bottom right
-                if (grid.getBottomRightOrNull(x, y) == MAS) {
+                if (grid.getBottomRightOrNull(x, y, 3) == MAS) {
                     totalXmas++
                 }
 
@@ -63,12 +63,37 @@ class Day04 {
                 }
 
                 // Bottom left
-                if (grid.getBottomLeftOrNull(x, y) == MAS) {
+                if (grid.getBottomLeftOrNull(x, y, 3) == MAS) {
                     totalXmas++
                 }
             }
         }
         return totalXmas
+    }
+
+    @Benchmark
+    fun part2(): Int {
+        val grid = input.map { it.toCharArray() }
+
+        var `totalX-mas` = 0
+        grid.forEachIndexed yAxis@{ y, chars ->
+            chars.forEachIndexed xAxis@{ x, char ->
+                if (char != 'A') return@xAxis
+
+                val topLeft = grid.getTopLeftOrNull(x, y, 1) ?: return@xAxis
+                val topRight = grid.getTopRightOrNull(x, y, 1) ?: return@xAxis
+                val bottomLeft = grid.getBottomLeftOrNull(x, y, 1) ?: return@xAxis
+                val bottomRight = grid.getBottomRightOrNull(x, y, 1) ?: return@xAxis
+
+                if (topLeft == "M" && bottomRight == "S" || topLeft == "S" && bottomRight == "M") {
+                    if (topRight == "M" && bottomLeft == "S" || topRight == "S" && bottomLeft == "M") {
+                        `totalX-mas`++
+                    }
+                }
+            }
+        }
+
+        return `totalX-mas`
     }
 
     private fun Grid.getTopOrNull(x: Int, y: Int): String? {
@@ -82,23 +107,23 @@ class Day04 {
         }
     }
 
-    private fun Grid.getTopRightOrNull(x: Int, y: Int): String? {
-        if (y - 3 < 0 || x + 3 > this[0].lastIndex) return null
+    private fun Grid.getTopRightOrNull(x: Int, y: Int, totalChars: Int): String? {
+        if (y - totalChars < 0 || x + totalChars > this[0].lastIndex) return null
 
         return buildString {
             this@getTopRightOrNull
-                .slice(y - 3 until y)
+                .slice(y - totalChars until y)
                 .reversed()
                 .forEachIndexed { index, yChars -> append(yChars[x + (index + 1)]) }
         }
     }
 
-    private fun Grid.getTopLeftOrNull(x: Int, y: Int): String? {
-        if (y - 3 < 0 || x - 3 < 0) return null
+    private fun Grid.getTopLeftOrNull(x: Int, y: Int, totalChars: Int): String? {
+        if (y - totalChars < 0 || x - totalChars < 0) return null
 
         return buildString {
             this@getTopLeftOrNull
-                .slice(y - 3 until y)
+                .slice(y - totalChars until y)
                 .reversed()
                 .forEachIndexed { index, yChars -> append(yChars[x - (index + 1)]) }
         }
@@ -115,11 +140,11 @@ class Day04 {
         }
     }
 
-    private fun Grid.getBottomRightOrNull(x: Int, y: Int): String? {
-        if (y + 3 > lastIndex || x + 3 > this[0].lastIndex) return null
+    private fun Grid.getBottomRightOrNull(x: Int, y: Int, totalChars: Int): String? {
+        if (y + totalChars > lastIndex || x + totalChars > this[0].lastIndex) return null
 
         return buildString {
-            this@getBottomRightOrNull.slice(y + 1..y + 3).forEachIndexed { index, chars ->
+            this@getBottomRightOrNull.slice(y + 1..y + totalChars).forEachIndexed { index, chars ->
                 append(chars[x + (index + 1)])
             }
         }
@@ -133,11 +158,11 @@ class Day04 {
         }
     }
 
-    private fun Grid.getBottomLeftOrNull(x: Int, y: Int): String? {
-        if (y + 3 > lastIndex || x - 3 < 0) return null
+    private fun Grid.getBottomLeftOrNull(x: Int, y: Int, totalChars: Int): String? {
+        if (y + totalChars > lastIndex || x - totalChars < 0) return null
 
         return buildString {
-            this@getBottomLeftOrNull.slice(y + 1..y + 3).forEachIndexed { index, yChars ->
+            this@getBottomLeftOrNull.slice(y + 1..y + totalChars).forEachIndexed { index, yChars ->
                 append(yChars[x - (index + 1)])
             }
         }
@@ -152,11 +177,6 @@ class Day04 {
                 append(this@getBeforeOrNull[y][x - times])
             }
         }
-    }
-
-    @Benchmark
-    fun part2(): Int {
-        return input.size
     }
 
     companion object {
@@ -174,7 +194,8 @@ fun main() {
     day04.part1().println()
 
     day04.input = readInputLines("Day04_test")
-    check(day04.part2() == -1)
+    check(day04.part2() == 9)
 
+    day04.input = readInputLines("Day04")
     day04.part2().println()
 }

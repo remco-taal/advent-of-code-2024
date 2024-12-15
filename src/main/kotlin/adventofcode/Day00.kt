@@ -28,15 +28,17 @@ class Day00 {
 }
 
 fun main() {
-    val day00 = Day00()
+    val day04 = Day04()
 
-    day00.input = readInputLines("Day00_test_1")
-    check(day00.part1() == -1)
+    day04.input = readInputLines("Day00_test_1")
+    check(day04.part1() == -1)
 
-    day00.input = readInputLines("Day00_test_2")
-    check(day00.part2() == -1)
+    day04.input = readInputLines("Day00")
+    day04.part1().println()
 
-    day00.setUp()
-    day00.part1().println()
-    day00.part2().println()
+    day04.input = readInputLines("Day00_test_2")
+    check(day04.part2() == -1)
+
+    day04.input = readInputLines("Day00")
+    day04.part2().println()
 }

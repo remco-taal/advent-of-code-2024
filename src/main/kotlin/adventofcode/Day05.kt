@@ -3,6 +3,8 @@ package adventofcode
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
 
+private typealias Update = List<Int>
+
 @State(Scope.Benchmark)
 @Fork(1)
 @Warmup(iterations = 5)
@@ -18,41 +20,67 @@ class Day05 {
 
     @Benchmark
     fun part1(): Int {
-        val pageOrderingRules = input.takeWhile { it.isNotBlank() }
-        val pageOrderingRulesMap = pageOrderingRules.fold(
+        val (pageOrderingRules, updates) = parseInput()
+        val goodUpdates = getGoodUpdates(updates, pageOrderingRules)
+        return goodUpdates.sumOf { page -> page.getMiddlePage() }
+    }
+
+    @Benchmark
+    fun part2(): Int {
+        val (pageOrderingRules, updates) = parseInput()
+        val goodUpdates = getGoodUpdates(updates, pageOrderingRules)
+        val badUpdates = updates.minus(goodUpdates.toSet())
+        val correctedUpdates = badUpdates.map { badUpdate ->
+            badUpdate.sortedWith { pageOne, pageTwo ->
+                val pagesAfterPageOne = pageOrderingRules[pageOne]
+                return@sortedWith when {
+                    pagesAfterPageOne.isNullOrEmpty() -> 0
+                    pageTwo in pagesAfterPageOne -> -1
+                    else -> 1
+                }
+            }
+        }
+        return correctedUpdates.sumOf { correctedUpdate -> correctedUpdate.getMiddlePage() }
+    }
+
+    private fun parseInput(): ParsedInput {
+        val topSection = input.takeWhile { it.isNotBlank() }
+        val pageOrderingRules = topSection.fold(
             initial = mutableMapOf<Int, MutableSet<Int>>()
-        ) { map, pageOrderingRule ->
-            val pair = pageOrderingRule.split('|').let { it[0].toInt() to it[1].toInt() }
+        ) { map, rule ->
+            val pair = rule.split('|').let { it[0].toInt() to it[1].toInt() }
             map.apply { getOrPut(pair.first) { mutableSetOf(pair.second) }.add(pair.second) }
         }
-
         val updates = input
-            .slice(pageOrderingRules.size + 1..input.lastIndex)
+            .slice(topSection.size + 1..input.lastIndex)
             .map { update ->
                 update.split(',').map { page ->
                     page.toInt()
                 }
             }
-        val updatesInRightOrder = updates.filter { update ->
-            update.withIndex().all { (index, pages) ->
-                val pagesBefore = update.slice(0..index)
-                val pagesAfter = pageOrderingRulesMap[pages] ?: setOf()
-                pagesBefore.all { it !in pagesAfter }
-            }
+        return ParsedInput(pageOrderingRules, updates)
+    }
+
+    private fun Update.getMiddlePage(): Int {
+        val indexOfMiddlePage = when {
+            size % 2 == 0 -> (size / 2) - 1
+            else -> size / 2
         }
-        return updatesInRightOrder.sumOf { page ->
-            val indexOfMiddlePageNumber = when {
-                page.size % 2 == 0 -> (page.size / 2) -1
-                else -> page.size / 2
-            }
-            page[indexOfMiddlePageNumber]
+        return this[indexOfMiddlePage]
+    }
+
+    private fun getGoodUpdates(
+        updates: List<List<Int>>,
+        pageOrderingRules: Map<Int, Set<Int>>
+    ) = updates.filter { update ->
+        update.withIndex().all { (index, page) ->
+            val pagesBefore = update.slice(0..index)
+            val pagesAfter = pageOrderingRules[page] ?: setOf()
+            pagesBefore.all { it !in pagesAfter }
         }
     }
 
-    @Benchmark
-    fun part2(): Int {
-        return input.size
-    }
+    private data class ParsedInput(val pageOrderingRules: Map<Int, Set<Int>>, val updates: List<List<Int>>)
 }
 
 fun main() {
@@ -65,7 +93,7 @@ fun main() {
     day05.part1().println()
 
     day05.input = readInputLines("Day05_test")
-    check(day05.part2() == -1)
+    check(day05.part2() == 123)
 
     day05.input = readInputLines("Day05")
     day05.part2().println()

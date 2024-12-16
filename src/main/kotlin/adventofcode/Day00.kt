@@ -13,7 +13,7 @@ class Day00 {
 
     @Setup
     fun setUp() {
-        input = readInputLines("Day00")
+        input = readInputLines(name)
     }
 
     @Benchmark
@@ -25,20 +25,24 @@ class Day00 {
     fun part2(): Int {
         return input.size
     }
+
+    companion object {
+        val name: String = Day00::class.java.simpleName
+    }
 }
 
 fun main() {
     val day00 = Day00()
 
-    day00.input = readInputLines("Day00_test_1")
+    day00.input = readInputLines("${Day00.name}_test_1")
     check(day00.part1() == -1)
 
-    day00.input = readInputLines("Day00")
+    day00.input = readInputLines(Day00.name)
     day00.part1().println()
 
-    day00.input = readInputLines("Day00_test_2")
+    day00.input = readInputLines("${Day00.name}_test_2")
     check(day00.part2() == -1)
 
-    day00.input = readInputLines("Day00")
+    day00.input = readInputLines(Day00.name)
     day00.part2().println()
 }
